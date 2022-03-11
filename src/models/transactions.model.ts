@@ -6,6 +6,7 @@ export class Transactions extends Model implements Transaction {
   from: number;
   to: number;
   amount: number;
+  details: string;
 
   static tableName = 'Transactions'; // database table name
   static idColumn = 'id'; // id column name

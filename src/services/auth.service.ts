@@ -34,14 +34,12 @@ class AuthService {
   public async login(userData: CreateUserDto): Promise<{ token: string; findUser: Omit<User, 'password'> }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await Users.query()
-      .leftJoin('accounts', 'users.id', 'accounts.user_id')
-      .select('users', 'accounts')
+    const findUser: any = await Users.query()
+      // .leftJoin('accounts', 'users.id', '=', 'accounts.user_id')
+      .select()
       .from('users')
       .where('email', '=', userData.email)
       .first();
-
-    console.log(findUser);
 
     if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
