@@ -15,7 +15,7 @@ export async function up(knex: Knex): Promise<void> {
       table.bigIncrements('id').unsigned().primary();
       table.string('account_name', 45).notNullable();
       table.string('account_number', 255).notNullable();
-      table.string('balance', 255).notNullable();
+      table.double('balance', 10, 2).notNullable();
       table.string('account_type', 255).notNullable();
       table.timestamp('created_at').notNullable().defaultTo(knex.raw('now()'));
       table.timestamp('updated_at').notNullable().defaultTo(knex.raw('now()'));

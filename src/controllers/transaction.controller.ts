@@ -1,38 +1,46 @@
-import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
-import userService from '@services/users.service';
+import { WithdrawalDTO, TransferDTO } from './../dtos/transactions.dto';
+import { UserOwnFundDTO } from '@dtos/transactions.dto';
+import { NextFunction, Response } from 'express';
+import TransactionService from '@services/transaction.service';
+import { RequestWithUser } from '@/interfaces/auth.interface';
 
 class TransactionController {
-  public userService = new userService();
+  public transactionService = new TransactionService();
 
-  public fund = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public fund = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
+      const data: UserOwnFundDTO = req.body;
+      const user = req.user;
 
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      const response = await this.transactionService.fund(data, user);
+
+      res.status(200).json({ data: response, message: 'User fund successful' });
     } catch (error) {
       next(error);
     }
   };
 
-  public withdraw = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public withdraw = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const findOneUserData: User = await this.userService.findUserById(userId);
+      const data: WithdrawalDTO = req.body;
+      const user = req.user;
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      const response = await this.transactionService.withdraw(data, user);
+
+      res.status(200).json({ data: response, message: 'Withdrawal successful' });
     } catch (error) {
       next(error);
     }
   };
 
-  public transfer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public transfer = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userData: CreateUserDto = req.body;
-      const createUserData: User = await this.userService.createUser(userData);
+      const data: TransferDTO = req.body;
+      const user = req.user;
 
-      res.status(201).json({ data: createUserData, message: 'created' });
+      const response = await this.transactionService.transfer(data, user);
+
+      res.status(201).json({ data: response, message: 'Transfer successful' });
     } catch (error) {
       next(error);
     }

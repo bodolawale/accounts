@@ -14,8 +14,8 @@ class AuthService {
   public async signup(userData: CreateUserDto): Promise<Omit<User, 'password'>> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: Users = await Users.query().select().from('users').where('email', '=', userData.email).first();
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    const exists = await Users.query().select().from('users').where('email', '=', userData.email).first();
+    if (exists) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await hash(userData.password, 10);
     const user = await this.createUserAndAssignAccount({ ...userData, password: hashedPassword });
@@ -27,45 +27,47 @@ class AuthService {
       .where('users.id', '=', user.id)
       .first();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...u } = createUserData;
     return u;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ token: string; findUser: Omit<User, 'password'> }> {
+  public async login(userData: CreateUserDto): Promise<{ token: string; user: Omit<User, 'password'> }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: any = await Users.query()
+    const user: any = await Users.query()
       // .leftJoin('accounts', 'users.id', '=', 'accounts.user_id')
       .select()
       .from('users')
       .where('email', '=', userData.email)
       .first();
 
-    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
+    if (!user) throw new HttpException(409, `You're email ${userData.email} not found`);
 
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+    const isPasswordMatching: boolean = await compare(userData.password, user.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
 
-    const tokenData = this.createToken(findUser);
+    const tokenData = this.createToken(user);
 
-    const { password, ...u } = findUser;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...u } = user;
 
-    return { token: tokenData.token, findUser: u };
+    return { token: tokenData.token, user: u };
   }
 
   public async logout(userData: User): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await Users.query()
+    const user: User = await Users.query()
       .select()
       .from('users')
       .where('email', '=', userData.email)
       .andWhere('password', '=', userData.password)
       .first();
 
-    if (!findUser) throw new HttpException(409, "You're not user");
+    if (!user) throw new HttpException(409, "You're not user");
 
-    return findUser;
+    return user;
   }
 
   public createToken(user: User): TokenData {
@@ -81,8 +83,8 @@ class AuthService {
   }
 
   private async createUserAndAssignAccount(userData: CreateUserDto): Promise<User> {
-    const user = await Users.transaction<User>(async transaction => {
-      const user = (await transaction<User>('users').insert(userData, '*'))[0];
+    const user = await Users.transaction<Users>(async transaction => {
+      const user = (await transaction<Users>('users').insert(userData, '*'))[0];
       const accountData = this.prepAccountData(userData, user.id);
       await transaction('accounts').insert(accountData);
       return user;

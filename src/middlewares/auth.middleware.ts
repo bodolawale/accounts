@@ -1,3 +1,4 @@
+import { Accounts } from './../models/accounts.model';
 import { NextFunction, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '@config';
@@ -14,10 +15,11 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
       const secretKey: string = SECRET_KEY;
       const verificationResponse = (await verify(Authorization, secretKey)) as DataStoredInToken;
       const userId = verificationResponse.id;
-      const findUser: User = await Users.query().findById(userId);
-      console.log(findUser);
-      if (findUser) {
-        req.user = findUser;
+      const user: User = await Users.query().findById(userId);
+      if (user) {
+        const account = await Accounts.query().select().from('accounts').where('user_id', '=', user.id).first();
+        user.account = account;
+        req.user = user;
         next();
       } else {
         next(new HttpException(401, 'Wrong authentication token'));

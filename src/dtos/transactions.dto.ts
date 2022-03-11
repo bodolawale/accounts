@@ -2,7 +2,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UserOwnFundDTO {
   @IsNumber()
-  public amount: string;
+  public amount: number;
 
   @IsOptional()
   @IsString()
@@ -11,7 +11,7 @@ export class UserOwnFundDTO {
 
 export class TransferDTO {
   @IsNumber()
-  public amount: string;
+  public amount: number;
 
   @IsString()
   public account_number: string;
@@ -23,7 +23,7 @@ export class TransferDTO {
 
 export class WithdrawalDTO {
   @IsNumber()
-  public amount: string;
+  public amount: number;
 
   @IsOptional()
   @IsString()
