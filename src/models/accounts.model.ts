@@ -7,7 +7,8 @@ export class Accounts extends Model implements Account {
   account_name: string;
   account_number: string;
   account_type: AccountType = AccountType.SAVINGS;
-  balance: number;
+  balance = 0;
+  user_id: number;
 
   static tableName = 'accounts'; // database table name
   static idColumn = 'id'; // id column name

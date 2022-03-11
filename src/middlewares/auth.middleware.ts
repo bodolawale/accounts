@@ -15,7 +15,7 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
       const verificationResponse = (await verify(Authorization, secretKey)) as DataStoredInToken;
       const userId = verificationResponse.id;
       const findUser: User = await Users.query().findById(userId);
-
+      console.log(findUser);
       if (findUser) {
         req.user = findUser;
         next();
