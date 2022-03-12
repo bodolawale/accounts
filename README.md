@@ -11,5 +11,6 @@ then `npm run dev` to start locally
 
 # TESTS
 create a `.env.test.local` file in the root directory.
+use a different database for your tests
 the file should follow the `env.example` file.
 `npm run test` to run all tests
