@@ -40,7 +40,7 @@ class TransactionController {
 
       const response = await this.transactionService.transfer(data, user);
 
-      res.status(201).json({ data: response, message: 'Transfer successful' });
+      res.status(200).json({ data: response, message: 'Transfer successful' });
     } catch (error) {
       next(error);
     }

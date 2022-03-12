@@ -12,8 +12,6 @@ class TransactionService {
       to: user.id,
     };
 
-    console.log(user);
-
     await Transactions.transaction<any>(async trx => {
       await trx<Transactions>('transactions').insert(data, '*');
       await trx<Accounts>('accounts').where({ id: data.to }).increment('balance', data.amount);

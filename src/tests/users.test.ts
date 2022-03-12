@@ -1,10 +1,36 @@
+import AuthRoute from '../routes/auth.route';
 import request from 'supertest';
-import App from '@/app';
-import { CreateUserDto } from '@dtos/users.dto';
-import UserRoute from '@routes/users.route';
+import App from '../app';
+import { Accounts } from './../models/accounts.model';
+import { Users } from './../models/users.model';
+import UserRoute from '../routes/users.route';
+import { User } from '../interfaces/users.interface';
+// import knex from '../databases/index';
+
+const dbUsers: Omit<User, 'password'>[] = [];
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
+  await Accounts.query().delete();
+  await Users.query().delete();
+});
+
+beforeAll(async () => {
+  const userData = {
+    email: 'test@gmail.com',
+    password: 'q1w2e3r4',
+    first_name: 'James',
+    last_name: 'Jones',
+  };
+  const loginData = {
+    email: userData.email,
+    password: userData.password,
+  };
+  const authRoute = new AuthRoute();
+  const app = new App([authRoute]);
+  await request(app.getServer()).post(`${authRoute.path}signup`).send(userData);
+  const res = await request(app.getServer()).post(`${authRoute.path}login`).send(loginData);
+  dbUsers.push(res.body.data.user);
 });
 
 describe('Testing Users', () => {
@@ -18,48 +44,11 @@ describe('Testing Users', () => {
 
   describe('[GET] /users/:id', () => {
     it('response statusCode 200 / findOne', () => {
-      const userId = 1;
+      const userId = dbUsers[0].id;
 
       const usersRoute = new UserRoute();
       const app = new App([usersRoute]);
       return request(app.getServer()).get(`${usersRoute.path}/${userId}`).expect(200);
-    });
-  });
-
-  describe('[POST] /users', () => {
-    it('response statusCode 201 / created', async () => {
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4',
-      };
-
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-      return request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
-    });
-  });
-
-  describe('[PUT] /users/:id', () => {
-    it('response statusCode 200 / updated', async () => {
-      const userId = 1;
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4',
-      };
-
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-      return request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
-    });
-  });
-
-  describe('[DELETE] /users/:id', () => {
-    it('response statusCode 200 / deleted', () => {
-      const userId = 1;
-
-      const usersRoute = new UserRoute();
-      const app = new App([usersRoute]);
-      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(200);
     });
   });
 });
