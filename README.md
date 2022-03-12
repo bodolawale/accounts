@@ -2,15 +2,15 @@
 Simple accounts functions with Knexjs
 --
 # SET UP
-create a `.env.development.local` file in the root directory._
+create a `.env.development.local` file in the root directory. 
 the file should follow the `env.example` file.
 --
 # Start
-first run migrations by doing `npm run migrate`_
+first run migrations by doing `npm run migrate` 
 then `npm run dev` to start locally
 --
 # TESTS
-create a `.env.test.local` file in the root directory._
-use a different database for your tests_
-the file should follow the `env.example` file._
+create a `.env.test.local` file in the root directory. 
+use a different database for your tests 
+the file should follow the `env.example` file. 
 `npm run test` to run all tests
