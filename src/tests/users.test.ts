@@ -5,7 +5,7 @@ import { Accounts } from './../models/accounts.model';
 import { Users } from './../models/users.model';
 import UserRoute from '../routes/users.route';
 import { User } from '../interfaces/users.interface';
-// import knex from '../databases/index';
+import knex from '../databases/index';
 
 const dbUsers: Omit<User, 'password'>[] = [];
 
@@ -49,6 +49,18 @@ describe('Testing Users', () => {
       const usersRoute = new UserRoute();
       const app = new App([usersRoute]);
       return request(app.getServer()).get(`${usersRoute.path}/${userId}`).expect(200);
+    });
+  });
+
+  describe('[GET] /users/accounts/:accountNumber', () => {
+    it('response statusCode 200 / accountDetails', async () => {
+      const userId = Number(dbUsers[0].id);
+      const account = await knex<Accounts>('accounts').where({ user_id: userId }).select().first();
+      const usersRoute = new UserRoute();
+      const app = new App([usersRoute]);
+      const res = await request(app.getServer()).get(`${usersRoute.path}/accounts/${account.account_number}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.data.user_id).toEqual(userId);
     });
   });
 });

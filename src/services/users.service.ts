@@ -5,6 +5,7 @@ import { User } from '@interfaces/users.interface';
 import { Users } from '@models/users.model';
 import { isEmpty } from '@utils/util';
 import { Accounts } from '@/models/accounts.model';
+import { Account } from '@/interfaces/accounts.interface';
 
 class UserService {
   public async findAllUser(): Promise<Omit<User, 'password'>[]> {
@@ -46,6 +47,14 @@ class UserService {
       .into('users');
 
     return createUserData;
+  }
+
+  public async getAccountDetails(accountNumber: string): Promise<Omit<Account, 'balance'>> {
+    const account = await Accounts.query().select().from('accounts').where('account_number', '=', accountNumber).first();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { balance, ...a } = account;
+
+    return a;
   }
 
   public async deleteUser(userId: number): Promise<User> {

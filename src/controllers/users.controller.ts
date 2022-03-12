@@ -38,6 +38,17 @@ class UsersController {
     }
   };
 
+  public getAccountDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const accountNumber = req.params.accountNumber;
+      const account = await this.userService.getAccountDetails(accountNumber);
+
+      res.status(200).json({ data: account, message: 'account details fetched successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public deleteUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const userId = Number(req.params.id);

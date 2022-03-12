@@ -80,7 +80,7 @@ describe('Testing Transactions', () => {
 
   describe('[GET] transactions/withdraw', () => {
     it('response statusCode 200 / fund account', async () => {
-      const account2 = (await knex<Accounts>('accounts').where({ user_id: dbUsers[1].id }).select())[0];
+      const account2 = await knex<Accounts>('accounts').where({ user_id: dbUsers[1].id }).select().first();
       const data: TransferDTO = {
         amount: 2500,
         account_number: account2.account_number,
